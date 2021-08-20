@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addContact } from "../../redux/actions";
-import s from "./ContactForm.module.css";
+import { useSelector, useDispatch } from "react-redux";
+import { addContact } from "../../redux/operations";
+import { getContactsItems } from "../../redux/selectors";
+import "./ContactForm.module.css";
 
 function ContactForm() {
   const dispatch = useDispatch();
@@ -21,33 +22,49 @@ function ContactForm() {
         return;
     }
   };
+
+  const contacts = useSelector((state) => getContactsItems(state));
+
+  const isContactExist = () => {
+    const normalizedFilter = name.toLowerCase();
+    return contacts.find(
+      (contact) => contact.name.toLowerCase() === normalizedFilter
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name.trim() === "" || number.trim() === "") {
       alert("Fill all fields!");
       return;
     }
+    const existContact = isContactExist();
+    if (existContact) {
+      alert(`${existContact.name} is already in contacts.`);
+      return;
+    }
     dispatch(addContact({ name, number }));
+
     setName("");
     setNumber("");
   };
 
   return (
-    <form className={s.Form} onSubmit={handleSubmit}>
-      <label className={s.FormLabel}>
+    <form className="Form" onSubmit={handleSubmit}>
+      <label className="Form-label">
         Name
         <input
-          className={s.FormInput}
+          className="Form-input"
           type="text"
           name="name"
           value={name}
           onChange={handleInputChange}
         />
       </label>
-      <label className={s.FormLabel}>
+      <label className="Form-label">
         Number
         <input
-          className={s.FormInput}
+          className="Form-input"
           type="text"
           name="number"
           value={number}
